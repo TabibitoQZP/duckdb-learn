@@ -1,3 +1,5 @@
+set(CMAKE_EXPORT_COMPILE_COMMANDS on)
+set(CMAKE_BUILD_TYPE Debug)
 cmake_minimum_required(VERSION 2.8.7)
 #if(APPLE) # needs to be before project()
 #	SET(CMAKE_CXX_FLAGS -stdlib=libc++)
