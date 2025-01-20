@@ -35,6 +35,7 @@
  */
 #ifndef TDEF_FUNCTIONS_H
 #define TDEF_FUNCTIONS_H
+#include "porting.h"
 #include "tables.h"
 
 /*

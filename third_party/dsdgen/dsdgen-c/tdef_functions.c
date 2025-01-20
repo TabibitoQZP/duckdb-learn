@@ -33,6 +33,9 @@
  * Contributors:
  * Gradient Systems
  */
+#include "tdef_functions.h"
+
+#include "dbgen_version.h"
 #include "w_call_center.h"
 #include "w_catalog_page.h"
 #include "w_catalog_returns.h"
@@ -57,8 +60,6 @@
 #include "w_web_returns.h"
 #include "w_web_sales.h"
 #include "w_web_site.h"
-#include "dbgen_version.h"
-#include "tdef_functions.h"
 
 table_func_t w_tdef_funcs[] = {{"call_center", mk_w_call_center, {NULL, NULL}, NULL},
                                {"catalog_page", mk_w_catalog_page, {NULL, NULL}, NULL},
@@ -87,6 +88,6 @@ table_func_t w_tdef_funcs[] = {{"call_center", mk_w_call_center, {NULL, NULL}, N
                                {"dbgen_version", mk_dbgen_version, {NULL, NULL}, NULL},
                                {NULL}};
 
-table_func_t *getTdefFunctionsByNumber(nTable) {
+table_func_t *getTdefFunctionsByNumber(int nTable) {
 	return (&w_tdef_funcs[nTable]);
 }

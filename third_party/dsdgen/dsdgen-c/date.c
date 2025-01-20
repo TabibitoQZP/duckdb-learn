@@ -37,15 +37,17 @@
 /*** includes ***/
 #include "config.h"
 #include "porting.h"
+
 #include <stdlib.h>
 #ifndef USE_STDLIB_H
 #include <malloc.h>
 #endif
-#include <stdio.h>
-#include <math.h>
 #include "date.h"
-#include "mathops.h"
 #include "dist.h"
+#include "mathops.h"
+
+#include <math.h>
+#include <stdio.h>
 
 #define D_CHARS "ymdYMD24" /* valid characters in a DBGDATE setting */
 #define MIN_DATE_INT 18000101
@@ -484,7 +486,7 @@ int day_number(date_t *d) {
  * Side Effects:
  * TODO: None
  */
-int getDateWeightFromJulian(jDay, nDistribution) {
+int getDateWeightFromJulian(int jDay, int nDistribution) {
 	date_t dTemp;
 	int nDay;
 

@@ -36,6 +36,7 @@
 #ifndef PORTING_H
 #define PORTING_H
 
+#include "config.h"
 #ifdef USE_STRING_H
 #include <string.h>
 #else
@@ -79,9 +80,9 @@ char *strdup(const char *);
 #endif
 
 #ifdef WIN32
-#include <windows.h>
-#include <winbase.h>
 #include <io.h>
+#include <winbase.h>
+#include <windows.h>
 #define random rand
 #define strncasecmp _strnicmp
 #define strcasecmp _stricmp
@@ -98,8 +99,8 @@ char *strdup(const char *);
 /* Lines added by Chuck McDevitt for WIN32 support */
 #ifndef _POSIX_
 #ifndef S_ISREG
-#define S_ISREG(m) (((m)&_S_IFMT) == _S_IFREG)
-#define S_ISFIFO(m) (((m)&_S_IFMT) == _S_IFIFO)
+#define S_ISREG(m) (((m) & _S_IFMT) == _S_IFREG)
+#define S_ISFIFO(m) (((m) & _S_IFMT) == _S_IFIFO)
 #endif
 #endif
 #endif /* WIN32 */
@@ -119,7 +120,9 @@ char *strdup(const char *);
 #endif /* MACOS */
 
 #define INTERNAL(m)                                                                                                    \
-	{ fprintf(stderr, "ERROR: %s\n\tFile: %s\n\tLine: %d\n", m, __FILE__, __LINE__); }
+	{                                                                                                                  \
+		fprintf(stderr, "ERROR: %s\n\tFile: %s\n\tLine: %d\n", m, __FILE__, __LINE__);                                 \
+	}
 
 #define OPEN_CHECK(var, path)                                                                                          \
 	if ((var) == NULL) {                                                                                               \

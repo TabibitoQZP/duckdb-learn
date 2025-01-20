@@ -33,18 +33,20 @@
  * Contributors:
  * Gradient Systems
  */
-#include "config.h"
-#include "porting.h"
-#include <stdio.h>
-#include "tables.h"
-#include "columns.h"
-#include "genrand.h"
 #include "tdefs.h"
-#include "scaling.h"
-#include "w_tdefs.h"
-#include "s_tdefs.h"
-#include "tdef_functions.h"
+
+#include "columns.h"
+#include "config.h"
+#include "genrand.h"
+#include "porting.h"
 #include "r_params.h"
+#include "s_tdefs.h"
+#include "scaling.h"
+#include "tables.h"
+#include "tdef_functions.h"
+#include "w_tdefs.h"
+
+#include <stdio.h>
 
 extern tdef w_tdefs[];
 extern tdef s_tdefs[];
@@ -140,7 +142,7 @@ getTdefsByNumber(int nTable)
         return(&w_tdefs[nTable]);
 }
 */
-tdef *getSimpleTdefsByNumber(nTable) {
+tdef *getSimpleTdefsByNumber(int nTable) {
 	if (nTable >= S_BRAND)
 		return (&s_tdefs[nTable - S_BRAND]);
 	return (&w_tdefs[nTable]);
