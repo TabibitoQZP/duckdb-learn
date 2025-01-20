@@ -96,9 +96,11 @@ unique_ptr<QueryResult> Connection::SendQuery(const string &query) {
 	return context->Query(query, true);
 }
 
+// 使用语句进行查询的入口
 unique_ptr<MaterializedQueryResult> Connection::Query(const string &query) {
 	auto result = context->Query(query, false);
 	D_ASSERT(result->type == QueryResultType::MATERIALIZED_RESULT);
+	// 这里是投射指针, 所以要在里面move.
 	return unique_ptr_cast<QueryResult, MaterializedQueryResult>(std::move(result));
 }
 

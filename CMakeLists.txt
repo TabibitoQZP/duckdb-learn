@@ -1,5 +1,5 @@
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
-# set(CMAKE_BUILD_TYPE Debug)
+set(CMAKE_BUILD_TYPE Debug)
 cmake_minimum_required(VERSION 3.5...3.29)
 
 if(NOT CLANG_TIDY)
@@ -1437,3 +1437,20 @@ if(EXISTS ${CMAKE_CONFIG_TEMPLATE} AND EXISTS ${CMAKE_CONFIG_VERSION_TEMPLATE})
           "${PROJECT_BINARY_DIR}/DuckDBConfigVersion.cmake"
     DESTINATION "${INSTALL_CMAKE_DIR}")
 endif()
+
+# 测试用代码
+function(my_test_formulation test_file)
+  get_filename_component(bench_target_name "${test_file}" NAME_WE)
+  add_executable("${bench_target_name}" "${test_file}")
+  target_link_libraries("${bench_target_name}"
+    PRIVATE duckdb
+  )
+  set_target_properties("${bench_target_name}" PROPERTIES RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin")
+endfunction()
+
+# 依次添加
+my_test_formulation("${CMAKE_CURRENT_SOURCE_DIR}/mytest/simple_example.cpp")
+
+# 设置main.cpp为入口
+# add_executable(my_example "${CMAKE_CURRENT_SOURCE_DIR}/examples/embedded-c++/main.cpp")
+# target_link_libraries(my_example PRIVATE duckdb)

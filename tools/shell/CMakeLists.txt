@@ -62,6 +62,7 @@ if(WIN32 AND NOT MINGW)
   target_sources(shell PRIVATE rc/duckdb.rc)
 endif()
 
+# 这里对shell做了重命名, 使其成为了duckdb
 set_target_properties(shell PROPERTIES OUTPUT_NAME duckdb)
 set_target_properties(shell PROPERTIES RUNTIME_OUTPUT_DIRECTORY
                                        ${PROJECT_BINARY_DIR})

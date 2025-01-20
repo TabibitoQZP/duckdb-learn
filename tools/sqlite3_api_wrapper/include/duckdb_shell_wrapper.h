@@ -1,3 +1,4 @@
+// 整个shell是从sqlite迁移过去的
 #define sqlite3AppendChar              duckdb_shell_sqlite3AppendChar
 #define sqlite3StrAccumAppend          duckdb_shell_sqlite3StrAccumAppend
 #define sqlite3StrAccumAppendAll       duckdb_shell_sqlite3StrAccumAppendAll
