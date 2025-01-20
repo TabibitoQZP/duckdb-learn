@@ -1,3 +1,5 @@
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+# set(CMAKE_BUILD_TYPE Debug)
 cmake_minimum_required(VERSION 3.5...3.29)
 
 if(NOT CLANG_TIDY)
@@ -369,7 +371,7 @@ endif()
 
 option(BUILD_EXTENSIONS_ONLY "Build all extension as linkable, overriding DONT_LINK, and don't build core." FALSE)
 option(BUILD_CORE_FUNCTIONS_EXTENSION "Build the core functions." TRUE)
-option(BUILD_BENCHMARKS "Enable building of the benchmark suite." FALSE)
+option(BUILD_BENCHMARKS "Enable building of the benchmark suite." TRUE) # Need to open it to enable benchmark in compile_commands.json
 option(BUILD_TPCE "Enable building of the TPC-E tool." FALSE)
 option(DISABLE_BUILTIN_EXTENSIONS "Disable linking extensions." FALSE)
 option(BUILD_PYTHON "Build the DuckDB Python extension" FALSE)

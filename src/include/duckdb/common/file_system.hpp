@@ -102,9 +102,11 @@ public:
 
 class FileSystem {
 public:
+	// virtual: 允许子类重载
 	DUCKDB_API virtual ~FileSystem();
 
 public:
+	// static: 可以用FileSystem::GetFileSystem调用. 同理, static成员变量也是一样的
 	DUCKDB_API static FileSystem &GetFileSystem(ClientContext &context);
 	DUCKDB_API static FileSystem &GetFileSystem(DatabaseInstance &db);
 	DUCKDB_API static FileSystem &Get(AttachedDatabase &db);

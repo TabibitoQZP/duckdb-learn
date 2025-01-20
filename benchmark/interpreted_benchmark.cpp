@@ -481,6 +481,7 @@ void InterpretedBenchmark::Run(BenchmarkState *state_p) {
 	auto &config = ClientConfig::GetConfig(*context);
 	auto result_collector_setting = PrepareResultCollector(config, *this);
 	const bool use_streaming = result_type == QueryResultType::STREAM_RESULT;
+	// 运行代码段
 	auto temp_result = context->Query(run_query, use_streaming);
 	if (temp_result->type != result_type) {
 		throw InternalException("Query did not produce the right result type, expected %s but got %s",

@@ -23,6 +23,7 @@ void BenchmarkRunner::RegisterBenchmark(Benchmark *benchmark) {
 
 Benchmark::Benchmark(bool register_benchmark, string name, string group) : name(name), group(group) {
 	if (register_benchmark) {
+		// 这里通过lambda函数最终定位到register了一个benchmark
 		BenchmarkRunner::RegisterBenchmark(this);
 	}
 }
@@ -117,7 +118,8 @@ void BenchmarkRunner::LogOutput(string message) {
 }
 
 void BenchmarkRunner::RunBenchmark(Benchmark *benchmark) {
-	Profiler profiler;
+	// 实测只会跑Append100KIntegersINSERT这个名字的benchmark
+	Profiler profiler; // 是个计时工具
 	auto display_name = benchmark->DisplayName();
 
 	auto state = benchmark->Initialize(configuration);
@@ -136,6 +138,7 @@ void BenchmarkRunner::RunBenchmark(Benchmark *benchmark) {
 		                             benchmark->Timeout(configuration));
 
 		profiler.Start();
+		// 代码运行段
 		benchmark->Run(state.get());
 		profiler.End();
 
@@ -198,6 +201,7 @@ enum ConfigurationError { None, BenchmarkNotFound, InfoWithoutBenchmarkName };
 void LoadInterpretedBenchmarks(FileSystem &fs) {
 	// load interpreted benchmarks
 	listFiles(fs, "benchmark", [](const string &path) {
+		// 只有 `.benchmark` 结尾的才需要load
 		if (endsWith(path, ".benchmark")) {
 			new InterpretedBenchmark(path);
 		}
@@ -223,6 +227,7 @@ string parse_root_dir_or_default(const int arg_counter, char const *const *arg_v
 		}
 	}
 	// default root directory is the duckdb root directory
+	// 这个值在CMakeLists中被定义, 是PROJECT_SOURCE_DIR
 	return DUCKDB_ROOT_DIRECTORY;
 }
 /**
@@ -308,6 +313,7 @@ ConfigurationError run_benchmarks() {
 		if (benchmark_indices.empty()) {
 			return ConfigurationError::BenchmarkNotFound;
 		}
+		// 根据名称重拍索引
 		std::sort(benchmark_indices.begin(), benchmark_indices.end(),
 		          [&](const int a, const int b) -> bool { return benchmarks[a]->name < benchmarks[b]->name; });
 		if (instance.configuration.meta == BenchmarkMetaType::INFO) {
@@ -338,6 +344,8 @@ ConfigurationError run_benchmarks() {
 			return ConfigurationError::InfoWithoutBenchmarkName;
 		}
 		// default: run all benchmarks
+		// 默认走这个途径做benchmark
+		// tpch的没编译做不了, 其他的没问题
 		instance.RunBenchmarks();
 	}
 	return ConfigurationError::None;
@@ -360,11 +368,18 @@ void print_error_message(const ConfigurationError &error) {
 int main(int argc, char **argv) {
 	duckdb::unique_ptr<FileSystem> fs = FileSystem::CreateLocal();
 	// Set the working directory. We need to scan this before loading the benchmarks or parsing the other arguments
+	// 这里注意, 默认会把fs指向project dir
 	string root_dir = parse_root_dir_or_default(argc, argv, *fs);
+	// cd到root_dir (用chdir)
 	FileSystem::SetWorkingDirectory(root_dir);
 	// load interpreted benchmarks before doing anything else
+	// 会从fs中递归读取 `benchmark` 目录, 然后将后缀为 `.benchmark` 的拿来register
 	LoadInterpretedBenchmarks(*fs);
 	parse_arguments(argc, argv);
+	/*
+	* run的时候会初始化一个目录 `DUCKDB_BENCHMARK_DIRECTORY`
+	* 然后
+	*/
 	const auto configuration_error = run_benchmarks();
 	if (configuration_error != ConfigurationError::None) {
 		print_error_message(configuration_error);

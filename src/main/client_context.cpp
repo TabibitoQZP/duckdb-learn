@@ -908,10 +908,14 @@ unique_ptr<QueryResult> ClientContext::Query(unique_ptr<SQLStatement> statement,
 	return pending_query->Execute();
 }
 
+/*
+* 这里的query可能是一个不完整的执行, 比如 `BEGIN TRANSACTION`
+*/
 unique_ptr<QueryResult> ClientContext::Query(const string &query, bool allow_stream_result) {
 	auto lock = LockContext();
 
 	ErrorData error;
+	// 解析结果的保存位置
 	vector<unique_ptr<SQLStatement>> statements;
 	if (!ParseStatements(*lock, query, statements, error)) {
 		return ErrorResult<MaterializedQueryResult>(std::move(error), query);
@@ -928,6 +932,7 @@ unique_ptr<QueryResult> ClientContext::Query(const string &query, bool allow_str
 	unique_ptr<QueryResult> result;
 	QueryResult *last_result = nullptr;
 	bool last_had_result = false;
+	// 这里用的居然是数字索引来获取元素
 	for (idx_t i = 0; i < statements.size(); i++) {
 		auto &statement = statements[i];
 		bool is_last_statement = i + 1 == statements.size();
@@ -939,6 +944,7 @@ unique_ptr<QueryResult> ClientContext::Query(const string &query, bool allow_str
 		if (pending_query->HasError()) {
 			current_result = ErrorResult<MaterializedQueryResult>(pending_query->GetErrorObject());
 		} else {
+			// 执行query
 			current_result = ExecutePendingQueryInternal(*lock, *pending_query);
 		}
 		// now append the result to the list of results
