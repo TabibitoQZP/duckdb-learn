@@ -1,3 +1,6 @@
+# 关闭线程, 用于学习!
+add_definitions(-DDUCKDB_NO_THREADS)
+
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 set(CMAKE_BUILD_TYPE Debug)
 cmake_minimum_required(VERSION 3.5...3.29)
@@ -1448,8 +1451,11 @@ function(my_test_formulation test_file)
   set_target_properties("${bench_target_name}" PROPERTIES RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin")
 endfunction()
 
-# 依次添加
+# 添加需要的测试
 my_test_formulation("${CMAKE_CURRENT_SOURCE_DIR}/mytest/simple_example.cpp")
+my_test_formulation("${CMAKE_CURRENT_SOURCE_DIR}/mytest/simple_udf.cpp")
+my_test_formulation("${CMAKE_CURRENT_SOURCE_DIR}/mytest/complex_query.cpp")
+
 
 # 设置main.cpp为入口
 # add_executable(my_example "${CMAKE_CURRENT_SOURCE_DIR}/examples/embedded-c++/main.cpp")

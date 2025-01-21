@@ -606,6 +606,8 @@ vector<unique_ptr<SQLStatement>> ClientContext::ParseStatementsInternal(ClientCo
 	Parser parser(GetParserOptions());
 	parser.ParseQuery(query);
 
+	// 这个是专门处理各种PRAGMA语句的, 所谓PRAGMA语句, 就是 `PRAGMA` 开头的特殊语句
+	// 比如在SQLite3中, 可以通过 `PRAGMA foreign_keys = ON;` 来启动外键约束
 	PragmaHandler handler(*this);
 	handler.HandlePragmaStatements(lock, parser.statements);
 
@@ -935,11 +937,11 @@ unique_ptr<QueryResult> ClientContext::Query(const string &query, bool allow_str
 	// 这里用的居然是数字索引来获取元素
 	for (idx_t i = 0; i < statements.size(); i++) {
 		auto &statement = statements[i];
-		bool is_last_statement = i + 1 == statements.size();
+		bool is_last_statement = i + 1 == statements.size(); // 因为在最后一个的时候需要保存结果, 因此这里才用索引的
 		PendingQueryParameters parameters;
-		parameters.allow_stream_result = allow_stream_result && is_last_statement;
-		auto pending_query = PendingQueryInternal(*lock, std::move(statement), parameters);
-		auto has_result = pending_query->properties.return_type == StatementReturnType::QUERY_RESULT;
+		parameters.allow_stream_result = allow_stream_result && is_last_statement; // 这个is_last_statement只影响parameters
+		auto pending_query = PendingQueryInternal(*lock, std::move(statement), parameters); // statement被浓缩到pending_query中了
+		auto has_result = pending_query->properties.return_type == StatementReturnType::QUERY_RESULT; // 有些statement只是用于改变context状态
 		unique_ptr<QueryResult> current_result;
 		if (pending_query->HasError()) {
 			current_result = ErrorResult<MaterializedQueryResult>(pending_query->GetErrorObject());
@@ -948,17 +950,21 @@ unique_ptr<QueryResult> ClientContext::Query(const string &query, bool allow_str
 			current_result = ExecutePendingQueryInternal(*lock, *pending_query);
 		}
 		// now append the result to the list of results
+		// last_result为空或者last_had_result为false时做更新
 		if (!last_result || !last_had_result) {
 			// first result of the query
 			result = std::move(current_result);
-			last_result = result.get();
+			last_result = result.get(); // get()的作用是获得原始指针地址
 			last_had_result = has_result;
 		} else {
+			// 即else考虑的时是上一次有结果的情况
 			// later results; attach to the result chain
 			// but only if there is a result
 			if (!has_result) {
 				continue;
 			}
+			// 这里可以看到, 这里会链起所有的结果来
+			// statements中的每一个statement如果有结果都会链到result中
 			last_result->next = std::move(current_result);
 			last_result = last_result->next.get();
 		}
@@ -969,6 +975,7 @@ unique_ptr<QueryResult> ClientContext::Query(const string &query, bool allow_str
 			interrupted = false;
 		}
 	}
+	// 可能std::move(result)才是正确的写法? anyway, it works in my machine.
 	return result;
 }
 
@@ -1020,11 +1027,12 @@ unique_ptr<PendingQueryResult> ClientContext::PendingQueryInternal(ClientContext
                                                                    unique_ptr<SQLStatement> statement,
                                                                    const PendingQueryParameters &parameters,
                                                                    bool verify) {
-	auto query = statement->query;
+	auto query = statement->query; // 注意这里的query不是最初的query, 而是从statement中取出来的, 事实上lldb打断点看到的都是空串
 	shared_ptr<PreparedStatementData> prepared;
 	if (verify) {
 		return PendingStatementOrPreparedStatementInternal(lock, query, std::move(statement), prepared, parameters);
 	} else {
+		// 实际上上面verify的情况也是先判断, 如果修改正确后仍然是调用这个函数
 		return PendingStatementOrPreparedStatement(lock, query, std::move(statement), prepared, parameters);
 	}
 }

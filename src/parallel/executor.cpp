@@ -468,6 +468,7 @@ void Executor::SignalTaskRescheduled(lock_guard<mutex> &) {
 }
 
 void Executor::WaitForTask() {
+// 这里没有定义下列flag, 所以会按多线程去跑, 要不写个单线程版本?
 #ifndef DUCKDB_NO_THREADS
 	static constexpr std::chrono::milliseconds WAIT_TIME_MS = std::chrono::milliseconds(WAIT_TIME);
 	std::unique_lock<mutex> l(executor_lock);

@@ -40,7 +40,7 @@ enum class StatementType : uint8_t {
 	CALL_STATEMENT,         // CALL statement type
 	SET_STATEMENT,          // SET statement type
 	LOAD_STATEMENT,         // LOAD statement type
-	RELATION_STATEMENT,
+	RELATION_STATEMENT,     // 似乎是CREATE, ALTER, DROP, SELECT, INSERT, UPDATE, DELETE之类的stmt
 	EXTENSION_STATEMENT,
 	LOGICAL_PLAN_STATEMENT,
 	ATTACH_STATEMENT,

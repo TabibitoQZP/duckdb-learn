@@ -187,7 +187,9 @@ vector<string> SplitQueryStringIntoStatements(const string &query) {
 	return query_statements;
 }
 
+// 解析语句最终的入口
 void Parser::ParseQuery(const string &query) {
+	// 作用是把PGS生成的解析树变成SQLStatements
 	Transformer transformer(options);
 	string parser_error;
 	optional_idx parser_error_location;
@@ -201,12 +203,14 @@ void Parser::ParseQuery(const string &query) {
 		}
 	}
 	{
+		// 调用的是PGS的解析器? 但实际上应该大改了
 		PostgresParser::SetPreserveIdentifierCase(options.preserve_identifier_case);
 		bool parsing_succeed = false;
 		// Creating a new scope to prevent multiple PostgresParser destructors being called
 		// which led to some memory issues
 		{
 			PostgresParser parser;
+			// 实测query带有;的情况也能过
 			parser.Parse(query);
 			if (parser.success) {
 				if (!parser.parse_tree) {
@@ -227,6 +231,7 @@ void Parser::ParseQuery(const string &query) {
 		}
 		// If DuckDB fails to parse the entire sql string, break the string down into individual statements
 		// using ';' as the delimiter so that parser extensions can parse the statement
+		// 带有;的可能解析不过, 这时候会拆成多个stmt, 但解析结果会按次序存到同一个向量中
 		if (parsing_succeed) {
 			// no-op
 			// return here would require refactoring into another function. o.w. will just no-op in order to run wrap up
