@@ -15,6 +15,7 @@ namespace duckdb {
 //===--------------------------------------------------------------------===//
 // Logical Operator Types
 //===--------------------------------------------------------------------===//
+// 定义逻辑算符的位置
 enum class LogicalOperatorType : uint8_t {
 	LOGICAL_INVALID = 0,
 	LOGICAL_PROJECTION = 1,
@@ -45,12 +46,12 @@ enum class LogicalOperatorType : uint8_t {
 	// Joins
 	// -----------------------------
 	LOGICAL_JOIN = 50,
-	LOGICAL_DELIM_JOIN = 51,
+	LOGICAL_DELIM_JOIN = 51, // 在operator中没有类定义
 	LOGICAL_COMPARISON_JOIN = 52,
 	LOGICAL_ANY_JOIN = 53,
 	LOGICAL_CROSS_PRODUCT = 54,
 	LOGICAL_POSITIONAL_JOIN = 55,
-	LOGICAL_ASOF_JOIN = 56,
+	LOGICAL_ASOF_JOIN = 56, // // 在operator中没有类定义
 	LOGICAL_DEPENDENT_JOIN = 57,
 	// -----------------------------
 	// SetOps

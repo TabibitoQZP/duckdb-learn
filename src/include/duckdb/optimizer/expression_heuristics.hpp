@@ -34,6 +34,7 @@ public:
 	void VisitOperator(LogicalOperator &op) override;
 
 private:
+	// 设置某些函数的开销
 	unordered_map<std::string, idx_t> function_costs = {
 	    {"+", 5},       {"-", 5},    {"&", 5},          {"#", 5},
 	    {">>", 5},      {"<<", 5},   {"abs", 5},        {"*", 10},

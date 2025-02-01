@@ -181,6 +181,7 @@ unique_ptr<T> ClientContext::ErrorResult(ErrorData error, const string &query) {
 
 void ClientContext::BeginQueryInternal(ClientContextLock &lock, const string &query) {
 	// check if we are on AutoCommit. In this case we should start a transaction
+	// 如果有AutoCommit, 说明每一个query都需要自动提交, 也就是视为一个事务
 	D_ASSERT(!active_query);
 	auto &db_inst = DatabaseInstance::GetDatabase(*this);
 	if (ValidChecker::IsInvalidated(db_inst)) {
@@ -548,6 +549,7 @@ void ClientContext::WaitForTask(ClientContextLock &lock, BaseQueryResult &result
 	active_query->executor->WaitForTask();
 }
 
+// 执行plan的入口
 PendingExecutionResult ClientContext::ExecuteTaskInternal(ClientContextLock &lock, BaseQueryResult &result,
                                                           bool dry_run) {
 	D_ASSERT(active_query);
@@ -631,6 +633,7 @@ unique_ptr<LogicalOperator> ClientContext::ExtractPlan(const string &query) {
 
 	unique_ptr<LogicalOperator> plan;
 	RunFunctionInTransactionInternal(*lock, [&]() {
+		// 为什么这里可以调用private成员函数?
 		Planner planner(*this);
 		planner.CreatePlan(std::move(statements[0]));
 		D_ASSERT(planner.plan);
@@ -940,6 +943,7 @@ unique_ptr<QueryResult> ClientContext::Query(const string &query, bool allow_str
 		bool is_last_statement = i + 1 == statements.size(); // 因为在最后一个的时候需要保存结果, 因此这里才用索引的
 		PendingQueryParameters parameters;
 		parameters.allow_stream_result = allow_stream_result && is_last_statement; // 这个is_last_statement只影响parameters
+		// pending_query中会生成plan
 		auto pending_query = PendingQueryInternal(*lock, std::move(statement), parameters); // statement被浓缩到pending_query中了
 		auto has_result = pending_query->properties.return_type == StatementReturnType::QUERY_RESULT; // 有些statement只是用于改变context状态
 		unique_ptr<QueryResult> current_result;

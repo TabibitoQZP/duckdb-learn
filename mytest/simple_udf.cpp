@@ -4,17 +4,6 @@
 using namespace std;
 using namespace duckdb;
 
-bool bigger_than_four(int value) {
-	return value > 4;
-}
-
-int32_t udf_date(int32_t a) {
-    return a;
-}
-
-/*
-* This vectorized function copies the input values to the result vector
-*/
 template<typename TYPE>
 static void udf_vectorized(DataChunk &args, ExpressionState &state, Vector &result) {
     // set the result vector type
@@ -44,30 +33,11 @@ static void udf_vectorized(DataChunk &args, ExpressionState &state, Vector &resu
 int main() {
 	DuckDB db(nullptr);
 	Connection con(db);
-	// create a table
-	con.Query("CREATE TABLE integers (i INTEGER, j INTEGER)");
+	con.Query("CREATE TABLE integers (i INTEGER)");
+	con.Query("INSERT INTO integers VALUES (1), (2), (3), (999)");
 
-	// insert three rows into the table
-	con.Query("INSERT INTO integers VALUES (3, 4), (5, 6), (7, NULL)");
+	con.CreateVectorizedFunction<int, int>("udf_vectorized_int", &udf_vectorized<int>);
 
-	auto result = con.Query("SELECT * FROM integers");
-	if (result->HasError()) {
-		cerr << result->GetError() << endl;
-	} else {
-		cout << result->ToString() << endl;
-	}
-
-
-	con.CreateScalarFunction<bool, int>("bigger_than_four", &bigger_than_four);
-	con.Query("SELECT i FROM (VALUES(3), (5)) tbl(i) WHERE bigger_than_four(i)")->Print();
-
-
-	con.Query("CREATE TABLE dates (d DATE)");
-	con.Query("INSERT INTO dates VALUES ('1992-01-01')");
-
-	con.CreateScalarFunction<int32_t, int32_t>("udf_date", {LogicalType::DATE}, LogicalType::DATE, &udf_date);
-
-	con.Query("SELECT udf_date(d) FROM dates")->Print();
-
+	con.Query("SELECT udf_vectorized_int(i) FROM integers")->Print();
 	return 0;
 }

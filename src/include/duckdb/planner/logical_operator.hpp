@@ -23,6 +23,7 @@
 
 namespace duckdb {
 
+// 逻辑查询需要使用操作符基类, 这个类没有private
 //! LogicalOperator is the base class of the logical operators present in the
 //! logical query tree
 class LogicalOperator {
@@ -33,6 +34,7 @@ public:
 
 	//! The type of the logical operator
 	LogicalOperatorType type;
+	// 也就是说一个逻辑操作符会嵌套很多children, 这些children也是LogicalOperator类型
 	//! The set of children of the operator
 	vector<unique_ptr<LogicalOperator>> children;
 	//! The set of expressions contained within the operator, if any
@@ -40,7 +42,7 @@ public:
 	//! The types returned by this logical operator. Set by calling LogicalOperator::ResolveTypes.
 	vector<LogicalType> types;
 	//! Estimated Cardinality
-	idx_t estimated_cardinality;
+	idx_t estimated_cardinality; // Cardinality 基数
 	bool has_estimated_cardinality;
 
 public:

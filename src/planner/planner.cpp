@@ -29,6 +29,7 @@ static void CheckTreeDepth(const LogicalOperator &op, idx_t max_depth, idx_t dep
 	}
 }
 
+// 生成计划的入口
 void Planner::CreatePlan(SQLStatement &statement) {
 	auto &profiler = QueryProfiler::Get(context);
 	auto parameter_count = statement.named_param_map.size();

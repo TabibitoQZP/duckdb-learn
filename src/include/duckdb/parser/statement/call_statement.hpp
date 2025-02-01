@@ -14,6 +14,7 @@
 
 namespace duckdb {
 
+// CallStatement会真正意义上调用函数, 可能UDF也会在这里调用
 class CallStatement : public SQLStatement {
 public:
 	static constexpr const StatementType TYPE = StatementType::CALL_STATEMENT;
@@ -21,6 +22,7 @@ public:
 public:
 	CallStatement();
 
+	// 这个function, 就有很多种类, 比如Scalar, vector之类的
 	unique_ptr<ParsedExpression> function;
 
 protected:

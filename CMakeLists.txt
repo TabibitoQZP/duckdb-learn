@@ -1,5 +1,8 @@
 # 关闭线程, 用于学习!
 add_definitions(-DDUCKDB_NO_THREADS)
+# 根据sqlite3_api_wrapper.cpp, 需要开启SHELL_INLINE_AUTOCOMPLETE才会编译自动补全
+# add_definitions(-DSHELL_INLINE_AUTOCOMPLETE)
+# 注意, 直接开启了这个define也是不能用的
 
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 set(CMAKE_BUILD_TYPE Debug)
@@ -1452,10 +1455,16 @@ function(my_test_formulation test_file)
 endfunction()
 
 # 添加需要的测试
-my_test_formulation("${CMAKE_CURRENT_SOURCE_DIR}/mytest/simple_example.cpp")
-my_test_formulation("${CMAKE_CURRENT_SOURCE_DIR}/mytest/simple_udf.cpp")
-my_test_formulation("${CMAKE_CURRENT_SOURCE_DIR}/mytest/complex_query.cpp")
+# my_test_formulation("${CMAKE_CURRENT_SOURCE_DIR}/mytest/simple_example.cpp")
+# my_test_formulation("${CMAKE_CURRENT_SOURCE_DIR}/mytest/simple_udf.cpp")
+# my_test_formulation("${CMAKE_CURRENT_SOURCE_DIR}/mytest/complex_query.cpp")
+# my_test_formulation("${CMAKE_CURRENT_SOURCE_DIR}/mytest/c_api_test.c")
+my_test_formulation("${CMAKE_CURRENT_SOURCE_DIR}/mytest/query_flow.cpp")
 
+# 添加插件
+# add_extension_definitions()
+# add_extension_dependencies()
+# link_extension_libraries()
 
 # 设置main.cpp为入口
 # add_executable(my_example "${CMAKE_CURRENT_SOURCE_DIR}/examples/embedded-c++/main.cpp")

@@ -42,6 +42,10 @@ protected:
 	SQLStatement(const SQLStatement &other) = default;
 
 public:
+	/*
+	 * `virtual ... = 0` 表明这是个纯虚函数, 纯虚函数的派生类需要明确定义其 `override` ,
+	 * 纯虚函数内部也可以明确定义, 但只有基类能调用, 派生类不能调用
+	 */
 	virtual string ToString() const = 0;
 	//! Create a copy of this SelectStatement
 	DUCKDB_API virtual unique_ptr<SQLStatement> Copy() const = 0;
