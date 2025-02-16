@@ -156,6 +156,7 @@ unique_ptr<PreparedStatementData> ClientContext::CreatePreparedStatement(const s
 	StatementType statement_type = statement->type;
 	auto result = make_unique<PreparedStatementData>(statement_type);
 
+	// QZP: 所谓的profiler主要就是对每个阶段时间进行监督的
 	profiler.StartPhase("planner");
 	Planner planner(*this);
 	planner.CreatePlan(move(statement));
@@ -163,6 +164,7 @@ unique_ptr<PreparedStatementData> ClientContext::CreatePreparedStatement(const s
 	profiler.EndPhase();
 
 	auto plan = move(planner.plan);
+	// QZP: result需要手动组装吗...
 	// extract the result column names from the plan
 	result->read_only = planner.read_only;
 	result->requires_valid_transaction = planner.requires_valid_transaction;

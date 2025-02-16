@@ -51,6 +51,9 @@ struct CorrelatedColumnInfo {
   all expressions.
 */
 class Binder {
+	// QZP: 标注友后, 友元可以调用private的东西
+	// 类似的有 `friend struct {StructName}` , `friend {FuncDecl}`
+	// 用于分别声明友元结构体, 友元函数
 	friend class ExpressionBinder;
 	friend class RecursiveSubqueryPlanner;
 

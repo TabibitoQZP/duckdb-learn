@@ -1,3 +1,6 @@
+# QZP: 这个库用了implicit int, 即省略了类型默认视为int, 这个得C89(C90)以前的才支持
+set(CMAKE_C_STANDARD 90)
+
 cmake_minimum_required(VERSION 2.8.7)
 
 project(dsdgen CXX)

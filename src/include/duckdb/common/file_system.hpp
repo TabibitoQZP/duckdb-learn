@@ -56,6 +56,7 @@ public:
 
 class FileSystem {
 public:
+	// QZP: 这被定义为一个基类, 所以析构函数一定要是virtual, 这样派生类才能用自己的析构函数
 	virtual ~FileSystem() {
 	}
 

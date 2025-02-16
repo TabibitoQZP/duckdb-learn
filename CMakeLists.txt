@@ -1,3 +1,11 @@
+# QZP: 设置输出compile_commands.json, 设置debug模式
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+set(CMAKE_BUILD_TYPE Debug)
+# QZP: 早期代码写的是move而非std::move, 所以需要忽略这个warning
+add_compile_options(-Wno-unqualified-std-cast-call)
+# QZP: 开启RTTI模式, 从而LLDB可以检查多态
+add_compile_options(-frtti)
+
 cmake_minimum_required(VERSION 2.8.7)
 # if(APPLE) # needs to be before project() SET(CMAKE_CXX_FLAGS -stdlib=libc++)
 # SET(CMAKE_OSX_DEPLOYMENT_TARGET "10.7" CACHE STRING "Minimum OS X deployment
@@ -313,3 +321,20 @@ if(EXISTS ${CMAKE_CONFIG_TEMPLATE} AND EXISTS ${CMAKE_CONFIG_VERSION_TEMPLATE})
           "${PROJECT_BINARY_DIR}/DuckDBConfigVersion.cmake"
     DESTINATION "${INSTALL_CMAKE_DIR}")
 endif()
+
+
+# QZP: 测试用代码
+function(my_test_formulation test_file)
+  get_filename_component(bench_target_name "${test_file}" NAME_WE)
+  add_executable("${bench_target_name}" "${test_file}")
+  target_link_libraries("${bench_target_name}"
+    PRIVATE duckdb
+  )
+  set_target_properties("${bench_target_name}" PROPERTIES RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/mytest")
+endfunction()
+
+# 添加需要的测试
+# my_test_formulation("${CMAKE_CURRENT_SOURCE_DIR}/mytest/simple_query.cpp")
+# my_test_formulation("${CMAKE_CURRENT_SOURCE_DIR}/mytest/query_detail.cpp")
+# my_test_formulation("${CMAKE_CURRENT_SOURCE_DIR}/mytest/parser_test.cpp")
+my_test_formulation("${CMAKE_CURRENT_SOURCE_DIR}/mytest/planner_test.cpp")

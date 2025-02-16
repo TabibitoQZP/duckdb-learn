@@ -35,6 +35,7 @@ public:
 	//! RamFS or something similar)
 	unique_ptr<FileSystem> file_system;
 	//! The maximum memory used by the database system (in bytes). Default: Infinite
+	// QZP: 这个 (idx_t) 意思是uint类型的idx_t的每一个位都设置为1, 这样就是最大值了
 	idx_t maximum_memory = (idx_t)-1;
 	//! Whether or not to create and use a temporary directory to store intermediates that do not fit in memory
 	bool use_temporary_directory = true;
