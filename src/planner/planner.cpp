@@ -24,7 +24,7 @@ void Planner::CreatePlan(SQLStatement &statement) {
 
 	// first bind the tables and columns to the catalog
 	context.profiler.StartPhase("binder");
-	binder.parameters = &bound_parameters;
+	binder.parameters = &bound_parameters; // 注意这里为binder传入了一个指针
 	auto bound_statement = binder.Bind(statement);
 	context.profiler.EndPhase();
 

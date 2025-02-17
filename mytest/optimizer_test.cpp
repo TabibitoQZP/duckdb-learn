@@ -1,11 +1,8 @@
-/*
-* 可以根据test/planner/test_projection_binding.cpp来编写测试
-*/
 #include <iostream>
-#include "duckdb/common/enums/expression_type.hpp"
-#include "duckdb/common/enums/logical_operator_type.hpp"
+#include "duckdb.hpp"
 #include "duckdb/main/connection.hpp"
 #include "duckdb/main/database.hpp"
+#include "duckdb/optimizer/optimizer.hpp"
 #include "duckdb/parser/parser.hpp"
 #include "duckdb/planner/operator/logical_projection.hpp"
 #include "duckdb/planner/planner.hpp"
@@ -13,13 +10,12 @@
 using namespace duckdb;
 using namespace std;
 
-unique_ptr<LogicalOperator> ParseLogicalTree(Connection& con, string query) {
+unique_ptr<LogicalOperator> ParseLogicalTree(string query, Connection& con) {
 	Parser parser;
 	parser.ParseQuery(query.c_str());
 	if (parser.statements.size() == 0 || parser.statements[0]->type != StatementType::SELECT_STATEMENT) {
 		return nullptr;
 	}
-
 	Planner planner(*con.context);
 	planner.CreatePlan(move(parser.statements[0]));
 	return move(planner.plan);
@@ -46,17 +42,17 @@ void printLogicalOperator(LogicalOperator& op, int depth) {
 }
 
 int main() {
-	DuckDB db;
+	DuckDB db(nullptr);
 	Connection con(db);
 	con.Query("BEGIN TRANSACTION");
-	con.Query("CREATE TABLE a (i INTEGER, j INTEGER)");
+	Binder binder(*con.context);
 
-	auto op0 = ParseLogicalTree(con, "SELECT i FROM (SELECT i, j, 0 FROM a WHERE i > 10 and i < 20) AS x ORDER BY i");
-	printLogicalOperator(*op0, 0);
-	auto op1 = ParseLogicalTree(con, "SELECT a.i FROM a ORDER BY i");
-	auto op2 = ParseLogicalTree(con, "SELECT i FROM a ORDER BY a.i");
-	auto op3 = ParseLogicalTree(con, "SELECT i AS k FROM a ORDER BY i");
+	con.Query("CREATE TABLE integers(i integer, j integer, k integer )");
 
+	Optimizer optimizer(binder, *con.context);
+	auto orignalPlan = ParseLogicalTree("SELECT k FROM integers where i+j > 10 and j = 5 and i = k+1 ", con);
+	printLogicalOperator(*orignalPlan, 0);
+	auto optimizedPlan = optimizer.Optimize(std::move(orignalPlan));
+	printLogicalOperator(*optimizedPlan, 0);
 	return 0;
-
 }

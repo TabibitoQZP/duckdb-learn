@@ -16,14 +16,18 @@ unique_ptr<LogicalOperator> Binder::PlanFilter(unique_ptr<Expression> condition,
 
 unique_ptr<LogicalOperator> Binder::CreatePlan(BoundSelectNode &statement) {
 	unique_ptr<LogicalOperator> root;
+
+	// QZP: FROM从句处理
 	assert(statement.from_table);
 	root = CreatePlan(*statement.from_table);
 	assert(root);
 
+	// QZP: WHERE从句处理
 	if (statement.where_clause) {
 		root = PlanFilter(move(statement.where_clause), move(root));
 	}
 
+	// QZP: 聚合操作 (SUM, AVG之类的) 和 group操作, 这两个确实应该合起来操作
 	if (statement.aggregates.size() > 0 || statement.groups.size() > 0) {
 		if (statement.groups.size() > 0) {
 			// visit the groups
@@ -45,6 +49,7 @@ unique_ptr<LogicalOperator> Binder::CreatePlan(BoundSelectNode &statement) {
 		root = move(aggregate);
 	}
 
+	// QZP: HAVING从句处理
 	if (statement.having) {
 		PlanSubqueries(&statement.having, &root);
 		auto having = make_unique<LogicalFilter>(move(statement.having));
