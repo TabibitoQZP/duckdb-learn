@@ -3,15 +3,15 @@
 #include "duckdb/common/serializer.hpp"
 #include "duckdb/main/client_context.hpp"
 #include "duckdb/main/database.hpp"
+#include "duckdb/parser/parsed_data/drop_info.hpp"
 #include "duckdb/parser/statement/pragma_statement.hpp"
 #include "duckdb/parser/statement/prepare_statement.hpp"
 #include "duckdb/planner/binder.hpp"
 #include "duckdb/planner/expression/bound_parameter_expression.hpp"
 #include "duckdb/planner/operator/logical_prepare.hpp"
+#include "duckdb/planner/pragma_handler.hpp"
 #include "duckdb/planner/query_node/bound_select_node.hpp"
 #include "duckdb/planner/query_node/bound_set_operation_node.hpp"
-#include "duckdb/planner/pragma_handler.hpp"
-#include "duckdb/parser/parsed_data/drop_info.hpp"
 
 using namespace duckdb;
 using namespace std;
@@ -77,6 +77,8 @@ void Planner::CreatePlan(unique_ptr<SQLStatement> statement) {
 	case StatementType::EXPLAIN_STATEMENT:
 	case StatementType::VACUUM_STATEMENT:
 	case StatementType::RELATION_STATEMENT:
+		// QZP: 可以看出, 这里Private的CreatePlan, 目的是作用于所有常规statement
+		// 对于如pragma stmt, 由后续case来实现
 		CreatePlan(*statement);
 		break;
 	case StatementType::PRAGMA_STATEMENT: {
